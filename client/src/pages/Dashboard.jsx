@@ -1,0 +1,406 @@
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { Building2, MapPin, Phone, CheckCircle2, Loader2, ArrowRight, Package } from 'lucide-react';
+
+const Dashboard = () => {
+    const { user, token, logout } = useAuth();
+    const navigate = useNavigate();
+    const [pharmacy, setPharmacy] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    // Form State
+    const [formData, setFormData] = useState({
+        name: '',
+        address: '',
+        city: '',
+        contactNumber: ''
+    });
+    const [submitting, setSubmitting] = useState(false);
+
+    // Stock Management State
+    const [medicines, setMedicines] = useState([]);
+    const [stockItems, setStockItems] = useState([]);
+    const [stockForm, setStockForm] = useState({
+        medicineId: '',
+        price: '',
+        quantity: '',
+        inStock: true
+    });
+    const [isAddingStock, setIsAddingStock] = useState(false);
+
+    useEffect(() => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
+        const fetchPharmacy = async () => {
+            try {
+                const res = await fetch('/api/pharmacy/mine', {
+                    headers: {
+                        'x-auth-token': token
+                    }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    setPharmacy(data);
+                    // If pharmacy exists, fetch stock variables
+                    fetchInitialData(token);
+                } else {
+                    // 404 means no pharmacy linked yet, which is fine
+                    setPharmacy(null);
+                }
+            } catch (err) {
+                console.error("Failed to fetch pharmacy", err);
+                setError('Failed to load pharmacy data.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        const fetchInitialData = async (authToken) => {
+            try {
+                const [medRes, stockRes] = await Promise.all([
+                    fetch('/api/pharmacy/medicines/all', { headers: { 'x-auth-token': authToken } }),
+                    fetch('/api/pharmacy/stock', { headers: { 'x-auth-token': authToken } })
+                ]);
+
+                if (medRes.ok) setMedicines(await medRes.json());
+                if (stockRes.ok) setStockItems(await stockRes.json());
+
+            } catch (e) {
+                console.error("Error loading stock data", e);
+            }
+        }
+
+        fetchPharmacy();
+    }, [user, token, navigate]);
+
+    const handleAddStock = async (e) => {
+        e.preventDefault();
+        setIsAddingStock(true);
+        try {
+            const res = await fetch('/api/pharmacy/stock', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': token
+                },
+                body: JSON.stringify(stockForm)
+            });
+
+            if (res.ok) {
+                const newItem = await res.json();
+                // Update local list (check if existing to replace, or add new)
+                setStockItems(prev => {
+                    const index = prev.findIndex(item => item.medicineId._id === newItem.medicineId._id);
+                    if (index > -1) {
+                        const newList = [...prev];
+                        newList[index] = newItem;
+                        return newList;
+                    }
+                    return [newItem, ...prev];
+                });
+                setStockForm({ medicineId: '', price: '', quantity: '', inStock: true });
+                alert('Stock updated successfully!');
+            } else {
+                alert('Failed to update stock');
+            }
+        } catch (err) {
+            alert('Error updating stock');
+        } finally {
+            setIsAddingStock(false);
+        }
+    };
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setSubmitting(true);
+        setError('');
+
+        try {
+            const res = await fetch('/api/pharmacy', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-auth-token': token
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                setPharmacy(data);
+            } else {
+                setError(data.msg || 'Failed to register pharmacy');
+            }
+        } catch (err) {
+            setError('Network error. Please try again.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#0f172a] text-white">
+                <Loader2 className="w-8 h-8 animate-spin text-teal-500" />
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen pt-24 px-4 pb-12 bg-[#0f172a] text-white flex flex-col items-center relative overflow-hidden">
+            {/* Background Blobs */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none fixed">
+                <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-[#1e1b4b] rounded-full blur-[120px] opacity-40" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#0f766e] rounded-full blur-[100px] opacity-30" />
+            </div>
+
+            <div className="w-full max-w-4xl z-10">
+                <div className="flex justify-between items-end mb-8">
+                    <div>
+                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-200 to-blue-200">
+                            Owner Dashboard
+                        </h1>
+                        <p className="text-blue-100/60 mt-1">Manage your pharmacy and inventory.</p>
+                    </div>
+                </div>
+
+                <AnimatePresence mode="wait">
+                    {!pharmacy ? (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="glass-card p-8 bg-white/5 border border-white/10"
+                        >
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="p-3 bg-teal-500/20 rounded-full text-teal-300 border border-teal-500/30">
+                                    <Building2 className="w-8 h-8" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold text-white">Register Your Pharmacy</h2>
+                                    <p className="text-sm text-blue-100/60">Link your pharmacy to start adding stock.</p>
+                                </div>
+                            </div>
+
+                            {error && (
+                                <div className="bg-red-500/10 border border-red-500/20 text-red-200 p-3 rounded-lg mb-6 text-sm">
+                                    {error}
+                                </div>
+                            )}
+
+                            <form onSubmit={handleRegister} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-blue-100/80">Pharmacy Name</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-teal-500/50"
+                                        placeholder="e.g. City Health Pharmacy"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-blue-100/80">Contact Number</label>
+                                    <div className="relative">
+                                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                                        <input
+                                            type="text"
+                                            required
+                                            value={formData.contactNumber}
+                                            onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white focus:ring-2 focus:ring-teal-500/50"
+                                            placeholder="077 123 4567"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2 md:col-span-2">
+                                    <label className="text-sm font-medium text-blue-100/80">Address</label>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-3 top-3 w-4 h-4 text-white/40" />
+                                        <input
+                                            type="text"
+                                            required
+                                            value={formData.address}
+                                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                                            className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white focus:ring-2 focus:ring-teal-500/50"
+                                            placeholder="No. 123, Main Street"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-blue-100/80">City</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={formData.city}
+                                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-teal-500/50"
+                                        placeholder="e.g. Colombo"
+                                    />
+                                </div>
+
+                                <div className="md:col-span-2 mt-4">
+                                    <button
+                                        type="submit"
+                                        disabled={submitting}
+                                        className="w-full py-3 bg-gradient-to-r from-teal-500 to-blue-600 hover:shadow-lg hover:shadow-teal-500/20 rounded-xl text-white font-bold transition-all flex items-center justify-center gap-2"
+                                    >
+                                        {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Register Pharmacy'}
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="w-full"
+                        >
+                            {/* Welcome Header */}
+                            <div className="glass-card p-8 bg-white/5 border border-white/10 mb-8 flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-white mb-1">Welcome, {pharmacy.name}</h2>
+                                    <div className="flex items-center gap-4 text-sm text-blue-100/60">
+                                        <div className="flex items-center gap-1">
+                                            <MapPin className="w-4 h-4" /> {pharmacy.location.address}
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <Phone className="w-4 h-4" /> {pharmacy.contactNumber}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="p-4 bg-teal-500/10 rounded-full border border-teal-500/20">
+                                    <Building2 className="w-8 h-8 text-teal-300" />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                {/* Add Stock Form */}
+                                <div className="lg:col-span-1">
+                                    <div className="glass-card p-6 bg-white/5 border border-white/10 sticky top-24">
+                                        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                            <Package className="w-5 h-5 text-teal-400" />
+                                            Add New Stock
+                                        </h3>
+
+                                        <form onSubmit={handleAddStock} className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-blue-100/70 mb-1">Medicine</label>
+                                                <select
+                                                    required
+                                                    value={stockForm.medicineId}
+                                                    onChange={(e) => setStockForm({ ...stockForm, medicineId: e.target.value })}
+                                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-teal-500/50 [&>option]:bg-[#0f172a]"
+                                                >
+                                                    <option value="">Select Medicine</option>
+                                                    {medicines.map(med => (
+                                                        <option key={med._id} value={med._id}>
+                                                            {med.name} - {med.brand} ({med.category})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-blue-100/70 mb-1">Price (LKR)</label>
+                                                    <input
+                                                        type="number"
+                                                        required
+                                                        min="0"
+                                                        value={stockForm.price}
+                                                        onChange={(e) => setStockForm({ ...stockForm, price: e.target.value })}
+                                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-teal-500/50"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-blue-100/70 mb-1">Quantity</label>
+                                                    <input
+                                                        type="number"
+                                                        required
+                                                        min="0"
+                                                        value={stockForm.quantity}
+                                                        onChange={(e) => setStockForm({ ...stockForm, quantity: e.target.value })}
+                                                        className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-teal-500/50"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="checkbox"
+                                                    id="inStock"
+                                                    checked={stockForm.inStock}
+                                                    onChange={(e) => setStockForm({ ...stockForm, inStock: e.target.checked })}
+                                                    className="w-4 h-4 rounded border-white/20 bg-white/5 text-teal-500 focus:ring-teal-500/50"
+                                                />
+                                                <label htmlFor="inStock" className="text-sm text-blue-100/80">Available in Stock</label>
+                                            </div>
+
+                                            <button
+                                                type="submit"
+                                                disabled={isAddingStock}
+                                                className="w-full py-2.5 bg-teal-600 hover:bg-teal-500 rounded-lg text-white font-semibold transition-colors flex items-center justify-center gap-2"
+                                            >
+                                                {isAddingStock ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Add to Inventory'}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                {/* Inventory List */}
+                                <div className="lg:col-span-2">
+                                    <div className="glass-card p-6 bg-white/5 border border-white/10">
+                                        <h3 className="text-lg font-bold text-white mb-4">My Inventory</h3>
+
+                                        {stockItems.length === 0 ? (
+                                            <div className="text-center py-12 text-white/30 border-2 border-dashed border-white/5 rounded-xl">
+                                                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                                <p>No inventory items yet.</p>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-3">
+                                                {stockItems.map(item => (
+                                                    <div key={item._id} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                                                        <div>
+                                                            <h4 className="font-bold text-white">{item.medicineId.name}</h4>
+                                                            <p className="text-sm text-white/50">{item.medicineId.brand} • {item.medicineId.category}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-6 text-right">
+                                                            <div>
+                                                                <p className="text-xs text-white/40 uppercase">Price</p>
+                                                                <p className="font-bold text-teal-300">LKR {item.price}</p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-xs text-white/40 uppercase">Qty</p>
+                                                                <p className="font-bold text-white">{item.quantity}</p>
+                                                            </div>
+                                                            <div className={`w-3 h-3 rounded-full ${item.inStock ? 'bg-green-500 shadow-green-500/50 shadow-sm' : 'bg-red-500'}`} />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+        </div>
+    );
+};
+
+export default Dashboard;
