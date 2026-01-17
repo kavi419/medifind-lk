@@ -26,30 +26,40 @@ const seedData = async () => {
             {
                 name: 'City Health Colombo',
                 location: { address: '123 Galle Rd, Colombo 03', lat: 6.9061, lng: 79.8519 },
+                latitude: 6.9061,
+                longitude: 79.8519,
                 contactNumber: '011-2345678',
                 isVerified: true
             },
             {
                 name: 'Galle Road Pharmacy',
                 location: { address: '456 Galle Rd, Mount Lavinia', lat: 6.8306, lng: 79.8644 },
+                latitude: 6.8306,
+                longitude: 79.8644,
                 contactNumber: '011-9876543',
                 isVerified: true
             },
             {
                 name: 'Union Chemist',
                 location: { address: '78 Union Place, Colombo 02', lat: 6.9189, lng: 79.8568 },
+                latitude: 6.9189,
+                longitude: 79.8568,
                 contactNumber: '011-1122334',
                 isVerified: true
             },
             {
                 name: 'Kandy Road Meds',
                 location: { address: '55 Kandy Rd, Kelaniya', lat: 6.9538, lng: 79.9168 },
+                latitude: 6.9538,
+                longitude: 79.9168,
                 contactNumber: '011-5566778',
                 isVerified: false
             },
             {
                 name: 'Nugegoda Pharmacy',
                 location: { address: '88 High Level Rd, Nugegoda', lat: 6.8732, lng: 79.8895 },
+                latitude: 6.8732,
+                longitude: 79.8895,
                 contactNumber: '011-9988776',
                 isVerified: true
             }

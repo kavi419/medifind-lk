@@ -9,6 +9,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Pharmacies from './pages/Pharmacies';
+import About from './pages/About';
 
 function App() {
   return (
@@ -52,8 +54,8 @@ function Layout() {
 
           <div className="hidden md:flex items-center gap-8 text-white/90 font-medium">
             <Link to="/" className="hover:text-teal-300 transition-colors">Home</Link>
-            <Link to="#" className="hover:text-teal-300 transition-colors">Pharmacies</Link>
-            <Link to="#" className="hover:text-teal-300 transition-colors">About</Link>
+            <Link to="/pharmacies" className="hover:text-teal-300 transition-colors">Pharmacies</Link>
+            <Link to="/about" className="hover:text-teal-300 transition-colors">About</Link>
           </div>
 
           <div className="flex items-center gap-4">
@@ -90,6 +92,8 @@ function Layout() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/pharmacies" element={<Pharmacies />} />
+        <Route path="/about" element={<About />} />
       </Routes>
     </div>
   );

@@ -76,6 +76,21 @@ router.put('/update', auth, async (req, res) => {
     }
 });
 
+// @route   GET /api/pharmacy/all
+// @desc    Get all registered pharmacies
+// @access  Public
+router.get('/all', async (req, res) => {
+    try {
+        const pharmacies = await Pharmacy.find()
+            .select('name contactNumber location latitude longitude isVerified')
+            .sort({ name: 1 });
+        res.json(pharmacies);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: 'Server Error' });
+    }
+});
+
 // @route   GET /api/pharmacy/mine
 // @desc    Get current user's pharmacy
 // @access  Private

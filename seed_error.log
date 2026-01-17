@@ -1,0 +1,5 @@
+{
+  "message": "Pharmacy validation failed: longitude: Path `longitude` is required., latitude: Path `latitude` is required.",
+  "errors": {},
+  "_message": "Pharmacy validation failed"
+}
