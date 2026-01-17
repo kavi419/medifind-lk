@@ -142,4 +142,73 @@ router.post('/stock', auth, async (req, res) => {
     }
 });
 
+// @route   PUT /api/pharmacy/stock/:id
+// @desc    Update stock item
+// @access  Private
+router.put('/stock/:id', auth, async (req, res) => {
+    try {
+        const { price, quantity, inStock } = req.body;
+        const user = await User.findById(req.user.id);
+
+        if (!user.pharmacyId) {
+            return res.status(404).json({ msg: 'No pharmacy linked' });
+        }
+
+        let stock = await Stock.findOne({ _id: req.params.id, pharmacyId: user.pharmacyId });
+
+        if (!stock) {
+            return res.status(404).json({ msg: 'Stock item not found' });
+        }
+
+        stock.price = price !== undefined ? price : stock.price;
+        stock.quantity = quantity !== undefined ? quantity : stock.quantity;
+        stock.inStock = inStock !== undefined ? inStock : stock.inStock;
+
+        await stock.save();
+
+        const populatedStock = await Stock.findById(stock._id)
+            .populate('medicineId', 'name brand category');
+
+        res.json(populatedStock);
+
+    } catch (err) {
+        console.error(err);
+        if (err.kind === 'ObjectId') {
+            return res.status(404).json({ msg: 'Stock item not found' });
+        }
+        res.status(500).json({ msg: 'Server Error' });
+    }
+});
+
+// @route   DELETE /api/pharmacy/stock/:id
+// @desc    Delete stock item
+// @access  Private
+router.delete('/stock/:id', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user.pharmacyId) {
+            return res.status(404).json({ msg: 'No pharmacy linked' });
+        }
+
+        const stock = await Stock.findOneAndDelete({
+            _id: req.params.id,
+            pharmacyId: user.pharmacyId
+        });
+
+        if (!stock) {
+            return res.status(404).json({ msg: 'Stock item not found' });
+        }
+
+        res.json({ msg: 'Stock item removed' });
+
+    } catch (err) {
+        console.error(err);
+        if (err.kind === 'ObjectId') {
+            return res.status(404).json({ msg: 'Stock item not found' });
+        }
+        res.status(500).json({ msg: 'Server Error' });
+    }
+});
+
 module.exports = router;

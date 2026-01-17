@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Building2, MapPin, Phone, CheckCircle2, Loader2, ArrowRight, Package } from 'lucide-react';
+import { Building2, MapPin, Phone, CheckCircle2, Loader2, ArrowRight, Package, Trash2, Edit2, X } from 'lucide-react';
 
 const Dashboard = () => {
     const { user, token, logout } = useAuth();
@@ -30,6 +30,7 @@ const Dashboard = () => {
         inStock: true
     });
     const [isAddingStock, setIsAddingStock] = useState(false);
+    const [editingItem, setEditingItem] = useState(null);
 
     useEffect(() => {
         if (!user) {
@@ -84,8 +85,14 @@ const Dashboard = () => {
         e.preventDefault();
         setIsAddingStock(true);
         try {
-            const res = await fetch('/api/pharmacy/stock', {
-                method: 'POST',
+            const url = editingItem
+                ? `/api/pharmacy/stock/${editingItem._id}`
+                : '/api/pharmacy/stock';
+
+            const method = editingItem ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method: method,
                 headers: {
                     'Content-Type': 'application/json',
                     'x-auth-token': token
@@ -95,25 +102,72 @@ const Dashboard = () => {
 
             if (res.ok) {
                 const newItem = await res.json();
-                // Update local list (check if existing to replace, or add new)
-                setStockItems(prev => {
-                    const index = prev.findIndex(item => item.medicineId._id === newItem.medicineId._id);
-                    if (index > -1) {
-                        const newList = [...prev];
-                        newList[index] = newItem;
-                        return newList;
-                    }
-                    return [newItem, ...prev];
-                });
-                setStockForm({ medicineId: '', price: '', quantity: '', inStock: true });
-                alert('Stock updated successfully!');
+
+                if (editingItem) {
+                    // Update existing item in list
+                    setStockItems(prev => prev.map(item =>
+                        item._id === newItem._id ? newItem : item
+                    ));
+                    alert('Stock updated successfully!');
+                } else {
+                    // Add or update local list (check if existing to replace, or add new)
+                    setStockItems(prev => {
+                        const index = prev.findIndex(item => item.medicineId._id === newItem.medicineId._id);
+                        if (index > -1) {
+                            const newList = [...prev];
+                            newList[index] = newItem;
+                            return newList;
+                        }
+                        return [newItem, ...prev];
+                    });
+                    alert('Stock added successfully!');
+                }
+                resetStockForm();
             } else {
-                alert('Failed to update stock');
+                alert('Failed to save stock');
             }
         } catch (err) {
-            alert('Error updating stock');
+            alert('Error saving stock');
         } finally {
             setIsAddingStock(false);
+        }
+    };
+
+    const resetStockForm = () => {
+        setStockForm({ medicineId: '', price: '', quantity: '', inStock: true });
+        setEditingItem(null);
+    };
+
+    const handleEditClick = (item) => {
+        setEditingItem(item);
+        setStockForm({
+            medicineId: item.medicineId._id,
+            price: item.price,
+            quantity: item.quantity,
+            inStock: item.inStock
+        });
+        // Scroll to form if needed, or keeping it sticky is fine
+    };
+
+    const handleDeleteClick = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this stock item?')) return;
+
+        try {
+            const res = await fetch(`/api/pharmacy/stock/${id}`, {
+                method: 'DELETE',
+                headers: { 'x-auth-token': token }
+            });
+
+            if (res.ok) {
+                setStockItems(prev => prev.filter(item => item._id !== id));
+                if (editingItem && editingItem._id === id) {
+                    resetStockForm();
+                }
+            } else {
+                alert('Failed to delete item');
+            }
+        } catch (err) {
+            alert('Error deleting item');
         }
     };
 
@@ -289,9 +343,19 @@ const Dashboard = () => {
                                 {/* Add Stock Form */}
                                 <div className="lg:col-span-1">
                                     <div className="glass-card p-6 bg-white/5 border border-white/10 sticky top-24">
-                                        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                                            <Package className="w-5 h-5 text-teal-400" />
-                                            Add New Stock
+                                        <h3 className="text-lg font-bold text-white mb-4 flex items-center justify-between">
+                                            <span className="flex items-center gap-2">
+                                                {editingItem ? <Edit2 className="w-5 h-5 text-yellow-400" /> : <Package className="w-5 h-5 text-teal-400" />}
+                                                {editingItem ? 'Edit Stock' : 'Add New Stock'}
+                                            </span>
+                                            {editingItem && (
+                                                <button
+                                                    onClick={resetStockForm}
+                                                    className="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-white/70 transition-colors"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            )}
                                         </h3>
 
                                         <form onSubmit={handleAddStock} className="space-y-4">
@@ -351,9 +415,12 @@ const Dashboard = () => {
                                             <button
                                                 type="submit"
                                                 disabled={isAddingStock}
-                                                className="w-full py-2.5 bg-teal-600 hover:bg-teal-500 rounded-lg text-white font-semibold transition-colors flex items-center justify-center gap-2"
+                                                className={`w-full py-2.5 rounded-lg text-white font-semibold transition-colors flex items-center justify-center gap-2 ${editingItem
+                                                        ? 'bg-yellow-600 hover:bg-yellow-500'
+                                                        : 'bg-teal-600 hover:bg-teal-500'
+                                                    }`}
                                             >
-                                                {isAddingStock ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Add to Inventory'}
+                                                {isAddingStock ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingItem ? 'Update Stock' : 'Add to Inventory')}
                                             </button>
                                         </form>
                                     </div>
@@ -372,12 +439,15 @@ const Dashboard = () => {
                                         ) : (
                                             <div className="space-y-3">
                                                 {stockItems.map(item => (
-                                                    <div key={item._id} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
-                                                        <div>
+                                                    <div key={item._id} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${editingItem && editingItem._id === item._id
+                                                            ? 'bg-yellow-500/10 border-yellow-500/30'
+                                                            : 'bg-white/5 border-white/5 hover:border-white/10'
+                                                        }`}>
+                                                        <div className="flex-1">
                                                             <h4 className="font-bold text-white">{item.medicineId.name}</h4>
                                                             <p className="text-sm text-white/50">{item.medicineId.brand} • {item.medicineId.category}</p>
                                                         </div>
-                                                        <div className="flex items-center gap-6 text-right">
+                                                        <div className="flex items-center gap-6 text-right mr-4">
                                                             <div>
                                                                 <p className="text-xs text-white/40 uppercase">Price</p>
                                                                 <p className="font-bold text-teal-300">LKR {item.price}</p>
@@ -387,6 +457,24 @@ const Dashboard = () => {
                                                                 <p className="font-bold text-white">{item.quantity}</p>
                                                             </div>
                                                             <div className={`w-3 h-3 rounded-full ${item.inStock ? 'bg-green-500 shadow-green-500/50 shadow-sm' : 'bg-red-500'}`} />
+                                                        </div>
+
+                                                        {/* Action Buttons */}
+                                                        <div className="flex flex-col gap-2 pl-4 border-l border-white/10">
+                                                            <button
+                                                                onClick={() => handleEditClick(item)}
+                                                                className="p-2 hover:bg-yellow-500/20 text-yellow-200/50 hover:text-yellow-200 rounded-lg transition-colors"
+                                                                title="Edit"
+                                                            >
+                                                                <Edit2 className="w-4 h-4" />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteClick(item._id)}
+                                                                className="p-2 hover:bg-red-500/20 text-red-200/50 hover:text-red-200 rounded-lg transition-colors"
+                                                                title="Delete"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 ))}
