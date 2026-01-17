@@ -11,23 +11,17 @@ const Stock = require('../models/Stock');
 // @access  Private
 router.post('/', auth, async (req, res) => {
     try {
-        const { name, address, contactNumber, city } = req.body;
+        const { name, address, contactNumber, city, latitude, longitude } = req.body;
 
-        if (!name || !address || !contactNumber) {
+        if (!name || !address || !contactNumber || !latitude || !longitude) {
             return res.status(400).json({ msg: 'Please enter all required fields' });
         }
 
-        // Mock Geo-location (In a real app, we would usage a geocoding API)
-        // Default to Colombo coordinates
-        const location = {
-            address: `${address}, ${city || ''}`,
-            lat: 6.9271 + (Math.random() * 0.01), // Random variation for demo
-            lng: 79.8612 + (Math.random() * 0.01)
-        };
-
         const newPharmacy = new Pharmacy({
             name,
-            location,
+            location: { address: `${address}, ${city || ''}` }, // Keep legacy structure minimal
+            latitude,
+            longitude,
             contactNumber
         });
 
@@ -36,6 +30,44 @@ router.post('/', auth, async (req, res) => {
         // Link pharmacy to user
         await User.findByIdAndUpdate(req.user.id, { pharmacyId: pharmacy._id });
 
+        res.json(pharmacy);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: 'Server Error' });
+    }
+});
+
+// @route   PUT /api/pharmacy/update
+// @desc    Update pharmacy details
+// @access  Private
+router.put('/update', auth, async (req, res) => {
+    try {
+        const { name, address, contactNumber, latitude, longitude } = req.body;
+        const user = await User.findById(req.user.id);
+
+        if (!user.pharmacyId) {
+            return res.status(404).json({ msg: 'No pharmacy linked' });
+        }
+
+        let pharmacy = await Pharmacy.findById(user.pharmacyId);
+
+        if (!pharmacy) {
+            return res.status(404).json({ msg: 'Pharmacy not found' });
+        }
+
+        // Update fields
+        if (name) pharmacy.name = name;
+        if (contactNumber) pharmacy.contactNumber = contactNumber;
+        if (latitude) pharmacy.latitude = latitude;
+        if (longitude) pharmacy.longitude = longitude;
+
+        // Update address in legacy location object if provided
+        if (address) {
+            pharmacy.location.address = address;
+        }
+
+        await pharmacy.save();
         res.json(pharmacy);
 
     } catch (err) {

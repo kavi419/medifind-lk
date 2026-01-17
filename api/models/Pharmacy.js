@@ -10,14 +10,15 @@ const pharmacySchema = new mongoose.Schema({
             type: String,
             required: true,
         },
-        lat: {
-            type: Number,
-            required: true,
-        },
-        lng: {
-            type: Number,
-            required: true,
-        }
+        // Keeping legacy structure if needed, but adding root fields as requested
+    },
+    latitude: {
+        type: Number,
+        required: true
+    },
+    longitude: {
+        type: Number,
+        required: true
     },
     contactNumber: {
         type: String,

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, MapPin, Activity, ShieldCheck, Pill, Thermometer, AlertCircle, Loader2, X, User, LogOut } from 'lucide-react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import PharmacyMapModal from './components/PharmacyMapModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
@@ -12,6 +13,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        <Toaster position="top-center" toastOptions={{ style: { background: '#333', color: '#fff' } }} />
         <Layout />
       </AuthProvider>
     </Router>
@@ -368,13 +370,15 @@ function ResultCard({ data, index, onViewMap }) {
         </div>
       </div>
 
-      <button
-        onClick={onViewMap}
-        className="w-full mt-2 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm font-semibold transition-all flex items-center justify-center gap-2 group-hover:bg-teal-600/20 group-hover:border-teal-500/30 group-hover:text-teal-200"
+      <a
+        href={`https://www.google.com/maps/search/?api=1&query=${data.pharmacy.latitude || data.pharmacy.location?.lat},${data.pharmacy.longitude || data.pharmacy.location?.lng}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-full mt-2 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm font-semibold transition-all flex items-center justify-center gap-2 group-hover:bg-teal-600/20 group-hover:border-teal-500/30 group-hover:text-teal-200 decoration-none"
       >
         <MapPin className="w-4 h-4" />
         View on Map
-      </button>
+      </a>
 
     </motion.div>
   );

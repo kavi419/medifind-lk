@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 import { Lock, Mail, Loader2, ArrowRight } from 'lucide-react';
 
 const Login = () => {
@@ -20,9 +21,11 @@ const Login = () => {
         const result = await login(email, password);
 
         if (result.success) {
+            toast.success('Welcome back!');
             navigate('/');
         } else {
             setError(result.msg || 'Login failed');
+            toast.error(result.msg || 'Login failed');
         }
         setLoading(false);
     };

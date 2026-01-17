@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 import { Lock, Mail, User, Loader2, ArrowRight } from 'lucide-react';
 
 const Register = () => {
@@ -21,6 +22,7 @@ const Register = () => {
 
         if (password !== confirmPassword) {
             setError("Passwords do not match");
+            toast.error("Passwords do not match");
             setLoading(false);
             return;
         }
@@ -28,9 +30,11 @@ const Register = () => {
         const result = await register(name, email, password);
 
         if (result.success) {
+            toast.success('Registration successful! Welcome to MediFind.');
             navigate('/');
         } else {
             setError(result.msg || 'Registration failed');
+            toast.error(result.msg || 'Registration failed');
         }
         setLoading(false);
     };
