@@ -87,6 +87,21 @@ const Dashboard = () => {
 
     const handleAddStock = async (e) => {
         e.preventDefault();
+
+        // Stock Validation
+        if (!stockForm.medicineId) {
+            toast.error('Please select a medicine');
+            return;
+        }
+        if (Number(stockForm.price) <= 0) {
+            toast.error('Price must be greater than 0');
+            return;
+        }
+        if (Number(stockForm.quantity) <= 0) {
+            toast.error('Quantity must be greater than 0');
+            return;
+        }
+
         setIsAddingStock(true);
         try {
             const url = editingItem
@@ -207,6 +222,39 @@ const Dashboard = () => {
 
     const handleUpdatePharmacy = async (e) => {
         e.preventDefault();
+
+        // Pharmacy Settings Validation
+        if (!formData.name || !formData.address || !formData.city) {
+            toast.error('Name, Address, and City are required');
+            return;
+        }
+
+        // Contact Number Validation (10 digits)
+        const phoneRegex = /^\d{10}$/;
+        if (!phoneRegex.test(formData.contactNumber)) {
+            toast.error('Contact number must be exactly 10 digits');
+            return;
+        }
+
+        // Lat/Lng Validation
+        const lat = parseFloat(formData.latitude);
+        const lng = parseFloat(formData.longitude);
+
+        if (isNaN(lat) || isNaN(lng)) {
+            toast.error('Latitude and Longitude must be valid numbers');
+            return;
+        }
+
+        if (lat < -90 || lat > 90) {
+            toast.error('Latitude must be between -90 and 90');
+            return;
+        }
+
+        if (lng < -180 || lng > 180) {
+            toast.error('Longitude must be between -180 and 180');
+            return;
+        }
+
         setSubmitting(true);
         setError('');
 
@@ -319,9 +367,12 @@ const Dashboard = () => {
                                             type="text"
                                             required
                                             value={formData.contactNumber}
-                                            onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                                setFormData({ ...formData, contactNumber: val });
+                                            }}
                                             className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white focus:ring-2 focus:ring-teal-500/50"
-                                            placeholder="077 123 4567"
+                                            placeholder="0771234567"
                                         />
                                     </div>
                                 </div>
@@ -597,7 +648,10 @@ const Dashboard = () => {
                                                     type="text"
                                                     required
                                                     value={formData.contactNumber}
-                                                    onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                                        setFormData({ ...formData, contactNumber: val });
+                                                    }}
                                                     className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-teal-500/50"
                                                 />
                                             </div>

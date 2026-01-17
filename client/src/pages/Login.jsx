@@ -18,6 +18,12 @@ const Login = () => {
         setLoading(true);
         setError('');
 
+        if (!email || !password) {
+            toast.error('Please enter both email and password');
+            setLoading(false);
+            return;
+        }
+
         const result = await login(email, password);
 
         if (result.success) {

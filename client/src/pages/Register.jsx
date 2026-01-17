@@ -12,7 +12,7 @@ const Register = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const { register } = useAuth();
+    const { register: authRegister, login } = useAuth(); // Renamed register to authRegister to avoid conflict
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -20,6 +20,24 @@ const Register = () => {
         setLoading(true);
         setError('');
 
+        // 1. Email Validation (Regex)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setError('Please enter a valid email address.');
+            toast.error('Please enter a valid email address.');
+            setLoading(false);
+            return;
+        }
+
+        // 2. Password Length
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters long.');
+            toast.error('Password must be at least 6 characters long.');
+            setLoading(false);
+            return;
+        }
+
+        // 3. Confirm Password
         if (password !== confirmPassword) {
             setError("Passwords do not match");
             toast.error("Passwords do not match");
@@ -27,16 +45,37 @@ const Register = () => {
             return;
         }
 
-        const result = await register(name, email, password);
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    password: password
+                })
+            });
 
-        if (result.success) {
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.msg || 'Registration failed');
+                toast.error(data.msg || 'Registration failed');
+                throw new Error(data.msg || 'Registration failed');
+            }
+
+            login(data.token, data.user); // Assuming login function is available from AuthContext
             toast.success('Registration successful! Welcome to MediFind.');
-            navigate('/');
-        } else {
-            setError(result.msg || 'Registration failed');
-            toast.error(result.msg || 'Registration failed');
+            navigate('/dashboard'); // Navigate to dashboard after successful registration
+
+        } catch (err) {
+            console.error(err);
+            // Error is handled by toast and setError above
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (
