@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import SkeletonCard from '../components/SkeletonCard';
 import { Building2, MapPin, Phone, CheckCircle2, Loader2, ArrowRight, Package, Trash2, Edit2, X } from 'lucide-react';
 
 const Dashboard = () => {
@@ -509,7 +510,13 @@ const Dashboard = () => {
                                     <div className="glass-card p-6 bg-white/5 border border-white/10">
                                         <h3 className="text-lg font-bold text-white mb-4">My Inventory</h3>
 
-                                        {stockItems.length === 0 ? (
+                                        {loading ? (
+                                            <div className="space-y-4">
+                                                {[...Array(3)].map((_, i) => (
+                                                    <SkeletonCard key={i} />
+                                                ))}
+                                            </div>
+                                        ) : stockItems.length === 0 ? (
                                             <div className="text-center py-12 text-white/30 border-2 border-dashed border-white/5 rounded-xl">
                                                 <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
                                                 <p>No inventory items yet.</p>

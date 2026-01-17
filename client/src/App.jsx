@@ -4,6 +4,7 @@ import { Search, MapPin, Activity, ShieldCheck, Pill, Thermometer, AlertCircle, 
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import PharmacyMapModal from './components/PharmacyMapModal';
+import SkeletonCard from './components/SkeletonCard';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -260,9 +261,10 @@ function Home() {
             </div>
 
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-20">
-                <Loader2 className="w-12 h-12 text-teal-400 animate-spin mb-4" />
-                <p className="text-blue-100/60">Searching network...</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(3)].map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
               </div>
             ) : error ? (
               <div className="glass-card p-8 text-center text-red-200 bg-red-500/10 border-red-500/20">
