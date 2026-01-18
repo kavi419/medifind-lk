@@ -33,7 +33,7 @@ const Pharmacies = () => {
     );
 
     return (
-        <div className="min-h-screen pt-24 pb-12 px-4 relative overflow-hidden bg-[#0f172a]">
+        <div className="min-h-screen pt-32 pb-12 px-4 relative overflow-hidden bg-[#0f172a]">
             {/* Background Effects */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none fixed">
                 <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-[#0f766e] rounded-full blur-[120px] opacity-20" />

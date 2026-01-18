@@ -1,10 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Zap, Heart, Code2, Globe, Github } from 'lucide-react';
 
 const About = () => {
     return (
-        <div className="min-h-screen pt-24 pb-12 px-4 relative overflow-y-auto bg-[#0f172a]">
+        <div className="min-h-screen pt-32 pb-12 px-4 relative overflow-y-auto bg-[#0f172a]">
             {/* Background Effects */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none fixed">
                 <div className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-[#0f766e] rounded-full blur-[120px] opacity-20" />
@@ -66,10 +67,10 @@ const About = () => {
                             My goal is to use technology to make healthcare accessibility simpler and more reliable for every Sri Lankan."
                         </p>
                         <div className="flex gap-4">
-                            <a href="#" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm font-medium">
+                            <Link to="/" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm font-medium">
                                 <Globe className="w-4 h-4" /> Personal Website
-                            </a>
-                            <a href="#" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm font-medium">
+                            </Link>
+                            <a href="https://github.com/kavi419" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm font-medium">
                                 <Github className="w-4 h-4" /> GitHub
                             </a>
                         </div>

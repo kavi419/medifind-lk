@@ -81,7 +81,7 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center pt-24 pb-12 p-4 relative overflow-y-auto bg-[#0f172a]">
+        <div className="min-h-screen flex flex-col items-center pt-32 pb-12 p-4 relative overflow-y-auto bg-[#0f172a]">
             {/* Simplified Background for Register */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none fixed">
                 <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-[#1e1b4b] rounded-full blur-[120px] opacity-50" />
