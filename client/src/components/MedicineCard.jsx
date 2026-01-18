@@ -139,13 +139,15 @@ const MedicineCard = ({ data, index, onViewMap }) => {
                 </div>
             )}
 
-            <button
-                onClick={onViewMap}
+            <a
+                href={`https://www.google.com/maps?q=${data.pharmacy.location.lat},${data.pharmacy.location.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-full mt-2 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm font-semibold transition-all flex items-center justify-center gap-2 group-hover:bg-teal-600/20 group-hover:border-teal-500/30 group-hover:text-teal-200 decoration-none"
             >
                 <MapPin className="w-4 h-4" />
                 View on Map
-            </button>
+            </a>
         </motion.div>
     );
 };

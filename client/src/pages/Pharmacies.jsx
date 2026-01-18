@@ -104,7 +104,7 @@ const Pharmacies = () => {
                                 </div>
 
                                 <a
-                                    href={`https://www.google.com/maps/search/?api=1&query=${pharmacy.latitude || pharmacy.location?.lat},${pharmacy.longitude || pharmacy.location?.lng}`}
+                                    href={`https://www.google.com/maps?q=${pharmacy.latitude || pharmacy.location?.lat},${pharmacy.longitude || pharmacy.location?.lng}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="mt-6 w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-semibold transition-all flex items-center justify-center gap-2 group decoration-none"

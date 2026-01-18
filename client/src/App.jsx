@@ -71,7 +71,10 @@ function Layout() {
                   <span className="font-semibold text-white/90">{user.name}</span>
                 </Link>
                 <button
-                  onClick={logout}
+                  onClick={() => {
+                    logout();
+                    window.location.href = '/login';
+                  }}
                   className="p-2 hover:bg-white/10 rounded-full text-white/60 hover:text-red-300 transition-colors"
                   title="Logout"
                 >
