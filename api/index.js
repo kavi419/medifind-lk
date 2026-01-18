@@ -25,6 +25,8 @@ console.log('Registering /api/auth routes...');
 app.use('/api/auth', require('./routes/auth'));
 console.log('Registering /api/pharmacy routes...');
 app.use('/api/pharmacy', require('./routes/pharmacy'));
+console.log('Registering /api/users routes...');
+app.use('/api/users', require('./routes/users'));
 
 // Debug middleware to log all requests
 app.use((req, res, next) => {

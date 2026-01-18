@@ -12,6 +12,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Pharmacies from './pages/Pharmacies';
 import About from './pages/About';
+import Leaderboard from './pages/Leaderboard';
 
 function App() {
   return (
@@ -56,6 +57,7 @@ function Layout() {
           <div className="hidden md:flex items-center gap-8 text-white/90 font-medium">
             <Link to="/" className="hover:text-teal-300 transition-colors">Home</Link>
             <Link to="/pharmacies" className="hover:text-teal-300 transition-colors">Pharmacies</Link>
+            <Link to="/leaderboard" className="hover:text-teal-300 transition-colors">Leaderboard</Link>
             <Link to="/about" className="hover:text-teal-300 transition-colors">About</Link>
           </div>
 
@@ -94,6 +96,7 @@ function Layout() {
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/pharmacies" element={<Pharmacies />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/about" element={<About />} />
       </Routes>
     </div>
