@@ -37,7 +37,8 @@ router.get('/', async (req, res) => {
             inStock: true
         })
             .populate('pharmacyId')
-            .populate('medicineId');
+            .populate('medicineId')
+            .populate('lastUpdatedBy', 'name');
 
         // 3. Format the response
         // Group by Pharmacy or just return list?
@@ -51,6 +52,8 @@ router.get('/', async (req, res) => {
                     id: stock.pharmacyId._id,
                     name: stock.pharmacyId.name,
                     location: stock.pharmacyId.location,
+                    latitude: stock.pharmacyId.latitude,
+                    longitude: stock.pharmacyId.longitude,
                     contact: stock.pharmacyId.contactNumber,
                     verified: stock.pharmacyId.isVerified
                 },
@@ -63,7 +66,13 @@ router.get('/', async (req, res) => {
                 },
                 price: stock.price,
                 quantity: stock.quantity,
-                updatedAt: stock.updatedAt
+                inStock: stock.inStock,
+                updatedAt: stock.updatedAt,
+                // Waze for Medicines Fields
+                lastUpdatedBy: stock.lastUpdatedBy, // now populated with name
+                lastUpdatedAt: stock.lastUpdatedAt,
+                status: stock.status,
+                verificationCount: stock.verificationCount
             }));
 
         res.json({

@@ -16,8 +16,12 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['pharmacy_owner', 'admin', 'user'],
-        default: 'pharmacy_owner',
+        enum: ['owner', 'user'],
+        default: 'user',
+    },
+    points: {
+        type: Number,
+        default: 0
     },
     pharmacyId: {
         type: mongoose.Schema.Types.ObjectId,

@@ -5,7 +5,10 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(() => {
+        const savedUser = localStorage.getItem('user');
+        return savedUser ? JSON.parse(savedUser) : null;
+    });
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
 
@@ -30,6 +33,7 @@ export const AuthProvider = ({ children }) => {
                     } else {
                         // Invalid token
                         localStorage.removeItem('token');
+                        localStorage.removeItem('user');
                         setToken(null);
                         setUser(null);
                     }
@@ -58,6 +62,7 @@ export const AuthProvider = ({ children }) => {
 
             if (res.ok) {
                 localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
                 setToken(data.token);
                 setUser(data.user);
                 return { success: true };
@@ -84,6 +89,7 @@ export const AuthProvider = ({ children }) => {
 
             if (res.ok) {
                 localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
                 setToken(data.token);
                 setUser(data.user);
                 return { success: true };
@@ -98,6 +104,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         setToken(null);
         setUser(null);
     };

@@ -24,8 +24,25 @@ const stockSchema = new mongoose.Schema({
     },
     updatedBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Assuming there might be a User model later, or just store ID
+        ref: 'User', // Maintained by Pharmacy Owner
     },
+    // Community Verification Fields "Waze for Medicines"
+    lastUpdatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    lastUpdatedAt: {
+        type: Date
+    },
+    status: {
+        type: String,
+        enum: ['In Stock', 'Out of Stock'],
+        default: 'In Stock'
+    },
+    verificationCount: {
+        type: Number,
+        default: 0
+    }
 }, { timestamps: { createdAt: true, updatedAt: 'lastUpdated' } });
 
 // Compound index to ensure one stock entry per medicine per pharmacy

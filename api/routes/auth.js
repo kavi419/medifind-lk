@@ -9,7 +9,7 @@ const User = require('../models/User');
 // @access  Public
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, role } = req.body;
 
         // Simple validation
         if (!name || !email || !password) {
@@ -26,11 +26,12 @@ router.post('/register', async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Create new user
+        // Create new user (Role defaults to 'user' if not provided, constrained by enum in model)
         const newUser = new User({
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            role: role || 'user'
         });
 
         const savedUser = await newUser.save();

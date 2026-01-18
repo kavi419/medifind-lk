@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react
 import { Toaster } from 'react-hot-toast';
 import PharmacyMapModal from './components/PharmacyMapModal';
 import SkeletonCard from './components/SkeletonCard';
+import MedicineCard from './components/MedicineCard';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -284,7 +285,7 @@ function Home() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {results.map((item, index) => (
-                  <ResultCard
+                  <MedicineCard
                     key={item.id}
                     data={item}
                     index={index}
@@ -323,71 +324,6 @@ function FeatureCard({ icon, title, desc, delay }) {
   )
 }
 
-function ResultCard({ data, index, onViewMap }) {
-  const isAvailable = data.quantity > 0;
-  const isLowStock = data.quantity < 10 && isAvailable;
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3, delay: index * 0.1 }}
-      className="glass-card p-6 flex flex-col gap-4 bg-white/5 border border-white/10 hover:border-teal-500/30 transition-all hover:shadow-lg hover:shadow-teal-500/10 group relative overflow-hidden"
-    >
-      <div className="absolute top-0 right-0 p-4">
-        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${isLowStock ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' :
-          isAvailable ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
-            'bg-red-500/20 text-red-300 border border-red-500/30'
-          }`}>
-          {isLowStock ? 'Low Stock' : isAvailable ? 'In Stock' : 'Out of Stock'}
-        </span>
-      </div>
-
-      <div className="flex items-start gap-4">
-        <div className="p-3 bg-blue-600/20 rounded-xl text-blue-300 border border-blue-500/20">
-          <Thermometer className="w-6 h-6" />
-        </div>
-        <div>
-          <h3 className="text-lg font-bold text-white leading-tight">{data.medicine.name}</h3>
-          <p className="text-sm text-blue-200/60 mt-0.5">{data.medicine.brand} • {data.medicine.category}</p>
-        </div>
-      </div>
-
-      <div className="h-px w-full bg-white/5 my-1" />
-
-      <div className="space-y-3">
-        <div className="flex items-start gap-3">
-          <MapPin className="w-5 h-5 text-teal-400 mt-0.5 shrink-0" />
-          <div>
-            <p className="font-semibold text-white/90">{data.pharmacy.name}</p>
-            <p className="text-sm text-white/50">{data.pharmacy.location.address}</p>
-          </div>
-        </div>
-
-        <div className="flex justify-between items-center mt-4 p-3 bg-white/5 rounded-lg border border-white/5">
-          <div className="text-left">
-            <p className="text-xs text-white/40 uppercase tracking-wider">Price</p>
-            <p className="text-lg font-bold text-teal-300">LKR {data.price}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs text-white/40 uppercase tracking-wider">Qty</p>
-            <p className="text-lg font-bold text-white">{data.quantity}</p>
-          </div>
-        </div>
-      </div>
-
-      <a
-        href={`https://www.google.com/maps/search/?api=1&query=${data.pharmacy.latitude || data.pharmacy.location?.lat},${data.pharmacy.longitude || data.pharmacy.location?.lng}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-full mt-2 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm font-semibold transition-all flex items-center justify-center gap-2 group-hover:bg-teal-600/20 group-hover:border-teal-500/30 group-hover:text-teal-200 decoration-none"
-      >
-        <MapPin className="w-4 h-4" />
-        View on Map
-      </a>
-
-    </motion.div>
-  );
-}
 
 export default App;

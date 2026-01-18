@@ -10,6 +10,7 @@ const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [role, setRole] = useState('user'); // Default to 'user'
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const { register: authRegister, login } = useAuth(); // Renamed register to authRegister to avoid conflict
@@ -54,7 +55,8 @@ const Register = () => {
                 body: JSON.stringify({
                     name: name,
                     email: email,
-                    password: password
+                    password: password,
+                    role: role // Send selected role
                 })
             });
 
@@ -80,7 +82,7 @@ const Register = () => {
 
     return (
         <div className="min-h-screen flex flex-col items-center pt-24 pb-12 p-4 relative overflow-y-auto bg-[#0f172a]">
-            {/* Simplified Background */}
+            {/* Simplified Background for Register */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none fixed">
                 <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-[#1e1b4b] rounded-full blur-[120px] opacity-50" />
                 <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-[#0f766e] rounded-full blur-[120px] opacity-40" />
@@ -92,8 +94,8 @@ const Register = () => {
                 className="w-full max-w-md glass-card p-8 bg-white/5 border border-white/10 relative z-10"
             >
                 <div className="text-center mb-8">
-                    <h2 className="text-3xl font-bold text-white mb-2">Join MediFind</h2>
-                    <p className="text-blue-100/60">Register your pharmacy to start</p>
+                    <h2 className="text-3xl font-bold text-white mb-2">Create Account</h2>
+                    <p className="text-blue-100/60">Join the MediFind network</p>
                 </div>
 
                 {error && (
@@ -102,9 +104,29 @@ const Register = () => {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Role Toggle */}
+                    <div className="flex p-1 bg-white/5 rounded-xl border border-white/10 mb-6">
+                        <button
+                            type="button"
+                            onClick={() => setRole('user')}
+                            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${role === 'user' ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/20' : 'text-blue-100/60 hover:text-white'}`}
+                        >
+                            I am a User
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setRole('owner')}
+                            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${role === 'owner' ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/20' : 'text-blue-100/60 hover:text-white'}`}
+                        >
+                            I am a Owner
+                        </button>
+                    </div>
+
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-blue-100/80 pl-1">Pharmacy/Owner Name</label>
+                        <label className="text-sm font-medium text-blue-100/80 pl-1">
+                            {role === 'owner' ? 'Pharmacy Name' : 'Full Name'}
+                        </label>
                         <div className="relative">
                             <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                             <input
@@ -113,7 +135,7 @@ const Register = () => {
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 className="w-full bg-white/5 border border-white/10 rounded-xl px-10 py-3 text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition-all"
-                                placeholder="City Health Pharmacy"
+                                placeholder={role === 'owner' ? "e.g. City Health Pharmacy" : "e.g. Kasun Perera"}
                             />
                         </div>
                     </div>
@@ -128,7 +150,7 @@ const Register = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full bg-white/5 border border-white/10 rounded-xl px-10 py-3 text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition-all"
-                                placeholder="contact@pharmacy.com"
+                                placeholder={role === 'owner' ? "e.g. contact@pharmacy.com" : "e.g. kasun@gmail.com"}
                             />
                         </div>
                     </div>

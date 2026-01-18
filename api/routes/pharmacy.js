@@ -258,4 +258,54 @@ router.delete('/stock/:id', auth, async (req, res) => {
     }
 });
 
+// @route   POST /api/pharmacy/verify-stock
+// @desc    Community verify stock (Waze for Medicines)
+// @access  Private (User only)
+router.post('/verify-stock', auth, async (req, res) => {
+    try {
+        const { pharmacyId, medicineId, status } = req.body;
+        const userId = req.user.id;
+
+        // Find the stock item
+        let stock = await Stock.findOne({ pharmacyId, medicineId });
+
+        if (!stock) {
+            return res.status(404).json({ msg: 'Stock info not found' });
+        }
+
+        // Update Stock Logic
+        stock.status = status; // 'In Stock' or 'Out of Stock'
+        stock.lastUpdatedBy = userId;
+        stock.lastUpdatedAt = new Date();
+        stock.verificationCount += 1;
+
+        // Also sync the main inStock boolean for compatibility
+        stock.inStock = status === 'In Stock';
+        if (status === 'Out of Stock') {
+            // Optional: maybe create an alert or not affect qty? 
+            // Letting quantity stay is safer, but owner should zero it. 
+            // We just mark the reported status.
+        }
+
+        await stock.save();
+
+        // Increment User Points
+        const user = await User.findById(userId);
+        if (user) {
+            user.points += 10;
+            await user.save();
+        }
+
+        res.json({
+            msg: 'Verification successful',
+            points: user.points,
+            stock: stock
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: 'Server Error' });
+    }
+});
+
 module.exports = router;
