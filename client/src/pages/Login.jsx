@@ -103,7 +103,7 @@ const Login = () => {
                 <p className="mt-8 text-center text-sm text-blue-100/50">
                     Don't have an account?{' '}
                     <Link to="/register" className="text-teal-400 hover:text-teal-300 font-semibold transition-colors">
-                        Register Pharmacy
+                        Register Pharmacy or User
                     </Link>
                 </p>
             </motion.div>
