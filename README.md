@@ -70,14 +70,12 @@ This project was built using the **MERN Stack** for high performance and scalabi
 Want to run this locally? Follow these steps:
 
 ### 1. Clone the Repository
-```bash
-git clone [https://github.com/kavi419/medifind-lk.git](https://github.com/kavi419/medifind-lk.git)
+
+git clone https://github.com/kavi419/medifind-lk.git
 cd medifind-lk
 
 2. Install Dependencies
 You need to install dependencies for both the root (backend) and client (frontend).
-
-Bash
 
 # Install Backend Dependencies
 npm install
@@ -86,21 +84,20 @@ npm install
 cd client
 npm install
 cd ..
+
 3. Environment Variables (.env)
 Create a .env file in the root directory and add your credentials:
-
-Code snippet
 
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_secret_key
 PORT=3000
+
 4. Run the Project
 You can run both Frontend and Backend concurrently.
 
-Bash
-
 # From the root directory
 npm run dev
+
 Visit http://localhost:5173 to view the app.
 
 💡 The "Why" Behind MediFind
@@ -122,3 +119,5 @@ Developed by Kavindu IT Undergraduate at SLIIT
 📧 Contact Me
 
 <p align="center"> Made with ❤️ in Sri Lanka 🇱🇰 </p>
+
+
