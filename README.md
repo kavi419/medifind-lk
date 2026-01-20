@@ -112,11 +112,9 @@ Empowering the Community: Allowing anyone to update stock status, ensuring data 
 👨‍💻 Developer
 Developed by Kavindu IT Undergraduate at SLIIT
 
-🌐 Personal Website
+🐙 [GitHub Profile](https://github.com/kavi419)  
 
-🐙 GitHub Profile
-
-📧 Contact Me
+📧 [Email](mailto:kavindu2002nethmina@gmail.com)
 
 <p align="center"> Made with ❤️ in Sri Lanka 🇱🇰 </p>
 
